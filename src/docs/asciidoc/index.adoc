@@ -1,0 +1,152 @@
+= Follow Service API Document
+:doctype: book
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:seclinks:
+
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+[[common]]
+= 개발 환경 정보
+
+// 표(table)를 구성할떄 아래와 같이 구성하면 된다.
+|===
+|환경|url
+
+|테스트
+|`http://127.0.0.1`
+
+|운영서버
+|`http://127.0.0.1`
+|===
+//표(table)의 설정 끝.
+
+[[Follow-Service-API]]
+== 1. Follow
+
+=== Register Follow
+
+http-request
+
+include::{snippets}/register-follow/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/register-follow/request-headers.adoc[]
+
+request-fields
+
+include::{snippets}/register-follow/request-fields.adoc[]
+
+request-body
+
+include::{snippets}/register-follow/request-body.adoc[]
+
+curl-request
+
+include::{snippets}/register-follow/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/register-follow/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/register-follow/response-body.adoc[]
+
+http-response
+
+include::{snippets}/register-follow/http-response.adoc[]
+
+=== Delete Follow
+
+path-parameters
+
+include::{snippets}/delete-follow/path-parameters.adoc[]
+
+http-request
+
+include::{snippets}/delete-follow/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/delete-follow/request-headers.adoc[]
+
+curl-request
+
+include::{snippets}/delete-follow/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/delete-follow/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/delete-follow/response-body.adoc[]
+
+http-response
+
+include::{snippets}/delete-follow/http-response.adoc[]
+
+=== User Follow Check
+
+path-parameters
+
+include::{snippets}/user-follow-check/path-parameters.adoc[]
+
+http-request
+
+include::{snippets}/user-follow-check/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/user-follow-check/request-headers.adoc[]
+
+curl-request
+
+include::{snippets}/user-follow-check/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/user-follow-check/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/user-follow-check/response-body.adoc[]
+
+http-response
+
+include::{snippets}/user-follow-check/http-response.adoc[]
+
+=== Follow counter
+
+path-parameters
+
+include::{snippets}/count-follow/path-parameters.adoc[]
+
+http-request
+
+include::{snippets}/count-follow/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/count-follow/request-headers.adoc[]
+
+curl-request
+
+include::{snippets}/count-follow/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/count-follow/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/count-follow/response-body.adoc[]
+
+http-response
+
+include::{snippets}/count-follow/http-response.adoc[]
