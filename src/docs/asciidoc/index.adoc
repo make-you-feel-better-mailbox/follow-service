@@ -150,3 +150,35 @@ include::{snippets}/count-follow/response-body.adoc[]
 http-response
 
 include::{snippets}/count-follow/http-response.adoc[]
+
+== 2. Get Filtered Follow
+
+=== Filtering Follow
+
+query-parameters
+
+include::{snippets}/filtering-follow/query-parameters.adoc[]
+
+http-request
+
+include::{snippets}/filtering-follow/http-request.adoc[]
+
+request-headers
+
+include::{snippets}/filtering-follow/request-headers.adoc[]
+
+curl-request
+
+include::{snippets}/filtering-follow/curl-request.adoc[]
+
+response-fields
+
+include::{snippets}/filtering-follow/response-fields.adoc[]
+
+response-body
+
+include::{snippets}/filtering-follow/response-body.adoc[]
+
+http-response
+
+include::{snippets}/filtering-follow/http-response.adoc[]
