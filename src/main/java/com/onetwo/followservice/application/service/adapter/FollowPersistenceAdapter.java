@@ -2,6 +2,7 @@ package com.onetwo.followservice.application.service.adapter;
 
 import com.onetwo.followservice.adapter.out.persistence.entity.FollowEntity;
 import com.onetwo.followservice.adapter.out.persistence.repository.follow.FollowRepository;
+import com.onetwo.followservice.application.port.in.command.FollowFilterCommand;
 import com.onetwo.followservice.application.port.out.ReadFollowPort;
 import com.onetwo.followservice.application.port.out.RegisterFollowPort;
 import com.onetwo.followservice.application.port.out.UpdateFollowPort;
@@ -11,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -64,5 +67,12 @@ public class FollowPersistenceAdapter implements ReadFollowPort, RegisterFollowP
         Long countFollower = followRepository.countByFolloweeAndState(targetUserId, GlobalStatus.PERSISTENCE_NOT_DELETED);
 
         return countFollower == null ? 0L : countFollower;
+    }
+
+    @Override
+    public List<Follow> filterFollow(FollowFilterCommand followFilterCommand) {
+        List<FollowEntity> followEntityList = followRepository.sliceByCommand(followFilterCommand);
+
+        return followEntityList.stream().map(Follow::entityToDomain).collect(Collectors.toList());
     }
 }

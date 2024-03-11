@@ -12,7 +12,10 @@ import lombok.Setter;
 @Setter(AccessLevel.PRIVATE)
 @Entity
 @NoArgsConstructor
-@Table(name = "target_follow")
+@Table(name = "target_follow", indexes = {
+        @Index(name = "follower", columnList = "follower"),
+        @Index(name = "followee", columnList = "followee")
+})
 public class FollowEntity extends BaseEntity {
 
     @Id
