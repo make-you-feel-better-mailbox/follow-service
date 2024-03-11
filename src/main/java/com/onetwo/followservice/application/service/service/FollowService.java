@@ -1,13 +1,7 @@
 package com.onetwo.followservice.application.service.service;
 
-import com.onetwo.followservice.application.port.in.command.CountFollowCommand;
-import com.onetwo.followservice.application.port.in.command.DeleteFollowCommand;
-import com.onetwo.followservice.application.port.in.command.FollowTargetCheckCommand;
-import com.onetwo.followservice.application.port.in.command.RegisterFollowCommand;
-import com.onetwo.followservice.application.port.in.response.CountFollowResponseDto;
-import com.onetwo.followservice.application.port.in.response.DeleteFollowResponseDto;
-import com.onetwo.followservice.application.port.in.response.FollowTargetCheckResponseDto;
-import com.onetwo.followservice.application.port.in.response.RegisterFollowResponseDto;
+import com.onetwo.followservice.application.port.in.command.*;
+import com.onetwo.followservice.application.port.in.response.*;
 import com.onetwo.followservice.application.port.in.usecase.DeleteFollowUseCase;
 import com.onetwo.followservice.application.port.in.usecase.ReadFollowUseCase;
 import com.onetwo.followservice.application.port.in.usecase.RegisterFollowUseCase;
@@ -20,9 +14,13 @@ import com.onetwo.followservice.domain.Follow;
 import lombok.RequiredArgsConstructor;
 import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
 import onetwo.mailboxcommonconfig.common.exceptions.NotFoundResourceException;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -119,5 +117,36 @@ public class FollowService implements RegisterFollowUseCase, DeleteFollowUseCase
         );
 
         return followUseCaseConverter.resultToFollowTargetCheckResponseDto(optionalFollow.isPresent());
+    }
+
+    /**
+     * Get Filtered follow use case,
+     * Get Filtered slice follow data
+     *
+     * @param followFilterCommand filter condition and pageable
+     * @return content and slice data
+     */
+    @Override
+    public Slice<FilteredFollowResponseDto> filterFollow(FollowFilterCommand followFilterCommand) {
+        if (isAtLeastConditionNotExist(followFilterCommand))
+            throw new BadRequestException("condition must have follower or followee");
+
+        List<Follow> followList = readFollowPort.filterFollow(followFilterCommand);
+
+        boolean hasNext = followList.size() > followFilterCommand.getPageable().getPageSize();
+
+        if (hasNext) followList.removeLast();
+
+        List<FilteredFollowResponseDto> filteredFollowResponseDtoList = followList.stream()
+                .map(followUseCaseConverter::followToFilteredResponse).toList();
+
+        return new SliceImpl<>(filteredFollowResponseDtoList, followFilterCommand.getPageable(), hasNext);
+    }
+
+    private boolean isAtLeastConditionNotExist(FollowFilterCommand followFilterCommand) {
+        boolean isFollowerConditionExist = StringUtils.hasText(followFilterCommand.getFollower());
+        boolean isFolloweeConditionExist = StringUtils.hasText(followFilterCommand.getFollowee());
+
+        return !(isFollowerConditionExist || isFolloweeConditionExist);
     }
 }

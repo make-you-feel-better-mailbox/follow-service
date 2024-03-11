@@ -15,4 +15,5 @@ public class GlobalUrl {
     public static final String PATH_VARIABLE_TARGET_USER_ID_WITH_BRACE = "/{" + PATH_VARIABLE_TARGET_USER_ID + "}";
 
     public static final String FOLLOW_COUNT = FOLLOW_ROOT + "/counts";
+    public static final String FOLLOW_FILTER = FOLLOW_ROOT + "/filter";
 }

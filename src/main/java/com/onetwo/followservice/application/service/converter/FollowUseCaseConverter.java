@@ -1,9 +1,6 @@
 package com.onetwo.followservice.application.service.converter;
 
-import com.onetwo.followservice.application.port.in.response.CountFollowResponseDto;
-import com.onetwo.followservice.application.port.in.response.DeleteFollowResponseDto;
-import com.onetwo.followservice.application.port.in.response.FollowTargetCheckResponseDto;
-import com.onetwo.followservice.application.port.in.response.RegisterFollowResponseDto;
+import com.onetwo.followservice.application.port.in.response.*;
 import com.onetwo.followservice.domain.Follow;
 import org.springframework.stereotype.Component;
 
@@ -23,5 +20,9 @@ public class FollowUseCaseConverter {
 
     public FollowTargetCheckResponseDto resultToFollowTargetCheckResponseDto(boolean isUserFollowTargetUser) {
         return new FollowTargetCheckResponseDto(isUserFollowTargetUser);
+    }
+
+    public FilteredFollowResponseDto followToFilteredResponse(Follow follow) {
+        return new FilteredFollowResponseDto(follow.getId(), follow.getFollower(), follow.getFollower(), follow.getCreatedAt());
     }
 }

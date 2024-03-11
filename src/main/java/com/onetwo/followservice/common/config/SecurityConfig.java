@@ -22,6 +22,7 @@ public class SecurityConfig {
                 List<MvcRequestMatcher> mvcRequestMatcherList = new ArrayList<>();
 
                 mvcRequestMatcherList.add(mvc.pattern(HttpMethod.GET, GlobalUrl.FOLLOW_COUNT + GlobalUrl.EVERY_UNDER_ROUTE));
+                mvcRequestMatcherList.add(mvc.pattern(HttpMethod.GET, GlobalUrl.FOLLOW_FILTER));
 
                 return mvcRequestMatcherList;
             }
