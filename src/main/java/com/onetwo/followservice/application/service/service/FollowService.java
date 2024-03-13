@@ -5,15 +5,19 @@ import com.onetwo.followservice.application.port.in.response.*;
 import com.onetwo.followservice.application.port.in.usecase.DeleteFollowUseCase;
 import com.onetwo.followservice.application.port.in.usecase.ReadFollowUseCase;
 import com.onetwo.followservice.application.port.in.usecase.RegisterFollowUseCase;
+import com.onetwo.followservice.application.port.out.FollowLockPort;
 import com.onetwo.followservice.application.port.out.ReadFollowPort;
 import com.onetwo.followservice.application.port.out.RegisterFollowPort;
 import com.onetwo.followservice.application.port.out.UpdateFollowPort;
 import com.onetwo.followservice.application.service.converter.FollowUseCaseConverter;
+import com.onetwo.followservice.common.exceptions.NotExpectResultException;
 import com.onetwo.followservice.common.exceptions.ResourceAlreadyExistsException;
 import com.onetwo.followservice.domain.Follow;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import onetwo.mailboxcommonconfig.common.exceptions.BadRequestException;
 import onetwo.mailboxcommonconfig.common.exceptions.NotFoundResourceException;
+import org.redisson.api.RLock;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
@@ -22,14 +26,17 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FollowService implements RegisterFollowUseCase, DeleteFollowUseCase, ReadFollowUseCase {
 
     private final ReadFollowPort readFollowPort;
     private final RegisterFollowPort registerFollowPort;
     private final UpdateFollowPort updateFollowPort;
+    private final FollowLockPort followLockPort;
     private final FollowUseCaseConverter followUseCaseConverter;
 
     /**
@@ -42,19 +49,53 @@ public class FollowService implements RegisterFollowUseCase, DeleteFollowUseCase
     @Override
     @Transactional
     public RegisterFollowResponseDto registerFollow(RegisterFollowCommand registerFollowCommand) {
-        Optional<Follow> optionalFollow = readFollowPort.findByFollowerAndFollowee(
+        log.info("Follow start : follower = {}, followee = {}",
                 registerFollowCommand.getFollower(),
                 registerFollowCommand.getFollowee()
         );
 
-        if (optionalFollow.isPresent())
-            throw new ResourceAlreadyExistsException("follow already exist. user can follow target user only ones");
+        RLock lock = followLockPort.getFollowRock(registerFollowCommand.getFollower(), registerFollowCommand.getFollowee());
 
-        Follow newFollow = Follow.createNewFollowByCommand(registerFollowCommand);
+        try {
+            boolean isLocked = lock.tryLock(4, 4, TimeUnit.SECONDS);
 
-        Follow savedFollow = registerFollowPort.registerFollow(newFollow);
+            if (!isLocked) {
+                // 락 획득에 실패했으므로 예외 처리
+                log.error("fail to get Lock : follower = {}, followee = {}",
+                        registerFollowCommand.getFollower(),
+                        registerFollowCommand.getFollowee()
+                );
+            }
 
-        return followUseCaseConverter.followToRegisterResponseDto(savedFollow);
+            Optional<Follow> optionalFollow = readFollowPort.findByFollowerAndFollowee(
+                    registerFollowCommand.getFollower(),
+                    registerFollowCommand.getFollowee()
+            );
+
+            if (optionalFollow.isPresent())
+                throw new ResourceAlreadyExistsException("follow already exist. user can follow target user only ones");
+
+            Follow newFollow = Follow.createNewFollowByCommand(registerFollowCommand);
+
+            Follow savedFollow = registerFollowPort.registerFollow(newFollow);
+
+            return followUseCaseConverter.followToRegisterResponseDto(savedFollow);
+        } catch (InterruptedException e) {
+            // 쓰레드가 인터럽트 될 경우의 예외 처리
+            log.error("Lock get error = " + e);
+
+            throw new NotExpectResultException(e.getMessage());
+        } finally {
+            if (lock.isLocked() && lock.isHeldByCurrentThread()) {
+                // 락 해제
+                lock.unlock();
+            }
+
+            log.info("User return follow Lock : follower = {}, followee = {}",
+                    registerFollowCommand.getFollower(),
+                    registerFollowCommand.getFollowee()
+            );
+        }
     }
 
     /**
