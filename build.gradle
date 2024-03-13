@@ -1,101 +1,103 @@
 buildscript {
-	ext {
-		queryDslVersion = "5.0.0"
-	}
+    ext {
+        queryDslVersion = "5.0.0"
+    }
 }
 
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.1.4'
-	id 'io.spring.dependency-management' version '1.1.3'
-	id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'java'
+    id 'org.springframework.boot' version '3.1.4'
+    id 'io.spring.dependency-management' version '1.1.3'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 group = 'com.onetwo'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '21'
+    sourceCompatibility = '21'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 ext {
-	set('springCloudVersion', "2022.0.4")
-	snippetsDir = file('./build/generated-snippets')
+    set('springCloudVersion', "2022.0.4")
+    snippetsDir = file('./build/generated-snippets')
 }
 
 dependencies {
-	implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-	compileOnly 'org.projectlombok:lombok:1.18.30'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	runtimeOnly 'com.h2database:h2'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    runtimeOnly 'com.h2database:h2'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
-	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
-	annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
-	annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
+    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
+    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
-	implementation 'org.modelmapper:modelmapper:3.1.1'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
 
-	implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
-	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-	testImplementation 'io.rest-assured:rest-assured'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 test {
-	outputs.dir snippetsDir
-	useJUnitPlatform()
+    outputs.dir snippetsDir
+    useJUnitPlatform()
 }
 
 asciidoctor {
-	inputs.dir snippetsDir
-	dependsOn test
+    inputs.dir snippetsDir
+    dependsOn test
 }
 
 asciidoctor.doFirst {
-	delete file('src/main/resources/static/docs')
+    delete file('src/main/resources/static/docs')
 }
 
 task copyDocument(type: Copy) {
-	dependsOn asciidoctor
-	from file("build/docs/asciidoc")
-	into file("src/main/resources/static/docs")
+    dependsOn asciidoctor
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static/docs")
 }
 
 build {
-	dependsOn copyDocument
+    dependsOn copyDocument
 }
