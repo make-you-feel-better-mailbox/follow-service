@@ -72,4 +72,10 @@ public class GlobalExceptionHandler {
         log.debug("ResourceAlreadyFullException", e);
         return ResponseEntity.badRequest().body(e.getMessage());
     }
+
+    @ExceptionHandler(NotExpectResultException.class)
+    public ResponseEntity<String> notExpectResultException(Exception e) {
+        log.error("NotExpectResultException", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+    }
 }

@@ -1,5 +1,61 @@
 spring:
+  profiles:
+    active: local
   config:
+    import: "optional:configserver:http://127.0.0.1:8888"
+  cloud:
+    config:
+      name: follow-service
+      profile: local
+  application:
+    name: follow-service
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  main:
+    allow-bean-definition-overriding: true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+eureka:
+  instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.instance_id:${random.value}}
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+server:
+  port: 0
+
+jwt:
+  secret-key: secret-key-one-two-dear-my-x-it-will-be-change-next-time
+
+access-id: server-access-id
+access-key: server-access-key
+
+mailbox-auto-config:
+  option: "on"
+  access-key-check: "ture"
+  logging: "on"
+  security: "on"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
     import: configserver:http://127.0.0.1:8888
   cloud:
     config:
